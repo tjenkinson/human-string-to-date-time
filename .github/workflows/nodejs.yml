@@ -1,0 +1,22 @@
+name: Node CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: npm install, test and build
+        run: |
+          npm ci
+          npm run lint
+          npm run test:coverage
+          npm run build
+        env:
+          CI: true
