@@ -1,0 +1,45 @@
+{
+  "name": "@tjenkinson/string-to-date",
+  "version": "4.1.3",
+  "description": "TODO",
+  "main": "dist/string-to-date.js",
+  "module": "dist/string-to-date.es.js",
+  "types": "dist/string-to-date.d.ts",
+  "keywords": [
+    "TODO"
+  ],
+  "scripts": {
+    "prepare": "husky install",
+    "build": "rm -rf dist && rollup --config rollup.config.js && tsc --declaration --emitDeclarationOnly",
+    "watch": "rollup --config rollup.config.js --watch",
+    "prettier": "prettier --write .",
+    "lint": "prettier --check .",
+    "prepublishOnly": "npm run build && npm test",
+    "preversion": "npm run build && npm test",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tjenkinson/string-to-date.git"
+  },
+  "author": "Tom Jenkinson <tom@tjenkinson.me>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tjenkinson/string-to-date/issues"
+  },
+  "homepage": "https://github.com/tjenkinson/string-to-date#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-typescript": "^8.3.2",
+    "@types/jest": "^28.1.1",
+    "husky": "^8.0.1",
+    "is-plain-object": "^5.0.0",
+    "jest": "^28.1.0",
+    "prettier": "^2.6.2",
+    "rollup": "^2.7.2",
+    "ts-jest": "^28.0.4",
+    "tslib": "^2.4.0",
+    "typescript": "^4.7.2"
+  }
+}
