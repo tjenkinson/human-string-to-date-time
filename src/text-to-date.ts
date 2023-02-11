@@ -7,6 +7,7 @@ export type ParsedDate = {
   hour: number | null;
   minute: number | null;
   second: number | null;
+  millisecond: number | null;
   timeOfDay: `am` | `pm` | null;
 };
 
@@ -72,13 +73,46 @@ const monthDays: Map<string, number> = new Map([
   ['31st', 31],
 ]);
 
+const numbers: Map<string, number> = new Map([
+  ['one', 1],
+  ['two', 2],
+  ['three', 3],
+  ['four', 4],
+  ['five', 5],
+  ['six', 6],
+  ['seven', 7],
+  ['eight', 8],
+  ['nine', 9],
+  ['ten', 10],
+  ['eleven', 11],
+  ['twelve', 12],
+]);
+
+const daysOfWeek: Map<string, number> = new Map([
+  ['sunday', 0],
+  ['sun', 0],
+  ['monday', 1],
+  ['mon', 1],
+  ['tuesday', 2],
+  ['tue', 2],
+  ['wednesday', 3],
+  ['wed', 3],
+  ['thursday', 4],
+  ['thu', 4],
+  ['friday', 5],
+  ['fri', 5],
+  ['saturday', 6],
+  ['sat', 6],
+]);
+
 const wordRegex = /\w+/g;
 const tokenRegex = /[^ ]+/g;
 const numberRegex = /^\d+/;
 const dateRegex = /^([0-9]{1,2})([-/])([0-9]{1,2})(?:\2([0-9]{2,4}))?$/;
-const timeRegex = /\b(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?(?: ?(am|pm))?\b/;
+const timeRegex =
+  /\b(\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d{1,3}))?)?(?: ?(am|pm))?\b/;
 const timeRegexHour = /(?:^|[^\w:])(\d{1,2}) ?(am|pm)\b/;
-const timeRegexWords = /\b(quarter|half|\d{1,2}) (past|to) (\d+)\b/;
+const timeRegexWords = /\b(quarter|half|\d{1,2}) (past|to) (\d{1,2}|\w+)\b/;
 
 export function parse(input: string): ParsedDate {
   const parsed: ParsedDate = {
@@ -89,6 +123,7 @@ export function parse(input: string): ParsedDate {
     hour: null,
     minute: null,
     second: null,
+    millisecond: null,
     timeOfDay: null,
   };
 
@@ -135,20 +170,26 @@ export function parse(input: string): ParsedDate {
 
   for (const word of words) {
     const month = months.get(word);
-    if (month) parsed.month = month;
+    if (month !== undefined) parsed.month = month;
 
     const monthDay = monthDays.get(word);
-    if (monthDay) parsed.day = monthDay;
+    if (monthDay !== undefined) parsed.day = monthDay;
+
+    const dayOfWeek = daysOfWeek.get(word);
+    if (dayOfWeek !== undefined) parsed.dayOfWeek = dayOfWeek;
   }
 
   const timeParts = timeRegex.exec(inLower);
   if (timeParts) {
-    const [_, hStr, mStr, sStr, tod] = timeParts;
+    const [_, hStr, mStr, sStr, msStr, tod] = timeParts;
     // TODO invalid if out of range
     parsed.hour = parseInt(hStr, 10);
     parsed.minute = parseInt(mStr, 10);
     if (sStr) {
       parsed.second = parseInt(sStr, 10);
+    }
+    if (msStr) {
+      parsed.millisecond = parseInt(msStr, 10);
     }
     if (tod) {
       parsed.timeOfDay = tod === 'am' ? 'am' : 'pm';
@@ -166,23 +207,26 @@ export function parse(input: string): ParsedDate {
   const timePartsWords = timeRegexWords.exec(inLower);
   if (timePartsWords) {
     const [_, a, pastTo, hStr] = timePartsWords;
-    if (pastTo === 'past') {
-      parsed.hour = parseInt(hStr, 10);
-      if (numberRegex.test(a)) {
-        parsed.minute = parseInt(a, 10);
-      } else if (a === `quarter`) {
-        parsed.minute = 15;
-      } else if (a === `half`) {
-        parsed.minute = 30;
-      }
-    } else if (pastTo === 'to') {
-      parsed.hour = (parseInt(hStr, 10) - 1 + 12) % 12;
-      if (numberRegex.test(a)) {
-        parsed.minute = parseInt(a, 10);
-      } else if (a === `quarter`) {
-        parsed.minute = 45;
-      } else if (a === `half`) {
-        parsed.minute = 30;
+    const hour = numberRegex.test(hStr)
+      ? parseInt(hStr, 10)
+      : numbers.get(hStr);
+    if (hour !== undefined) {
+      if (pastTo === 'past') {
+        parsed.hour = hour;
+        if (numberRegex.test(a)) {
+          parsed.minute = parseInt(a, 10);
+        } else if (a === `quarter`) {
+          parsed.minute = 15;
+        } else if (a === `half`) {
+          parsed.minute = 30;
+        }
+      } else if (pastTo === 'to') {
+        parsed.hour = (hour - 1 + 12) % 12;
+        if (numberRegex.test(a)) {
+          parsed.minute = 60 - parseInt(a, 10);
+        } else if (a === `quarter`) {
+          parsed.minute = 45;
+        }
       }
     }
   }
