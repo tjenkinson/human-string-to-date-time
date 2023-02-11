@@ -76,6 +76,9 @@ const wordRegex = /\w+/g;
 const tokenRegex = /[^ ]+/g;
 const numberRegex = /^\d+/;
 const dateRegex = /^([0-9]{1,2})([-/])([0-9]{1,2})(?:\2([0-9]{2,4}))?$/;
+const timeRegex = /\b(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?(?: ?(am|pm))?\b/;
+const timeRegexHour = /(?:^|[^\w:])(\d{1,2}) ?(am|pm)\b/;
+const timeRegexWords = /\b(quarter|half|\d{1,2}) (past|to) (\d+)\b/;
 
 export function parse(input: string): ParsedDate {
   const parsed: ParsedDate = {
@@ -136,6 +139,52 @@ export function parse(input: string): ParsedDate {
 
     const monthDay = monthDays.get(word);
     if (monthDay) parsed.day = monthDay;
+  }
+
+  const timeParts = timeRegex.exec(inLower);
+  if (timeParts) {
+    const [_, hStr, mStr, sStr, tod] = timeParts;
+    // TODO invalid if out of range
+    parsed.hour = parseInt(hStr, 10);
+    parsed.minute = parseInt(mStr, 10);
+    if (sStr) {
+      parsed.second = parseInt(sStr, 10);
+    }
+    if (tod) {
+      parsed.timeOfDay = tod === 'am' ? 'am' : 'pm';
+    }
+  }
+
+  const timePartsHour = timeRegexHour.exec(inLower);
+  if (timePartsHour) {
+    const [_, hStr, tod] = timePartsHour;
+    // TODO invalid if out of range
+    parsed.hour = parseInt(hStr, 10);
+    parsed.timeOfDay = tod === 'am' ? 'am' : 'pm';
+  }
+
+  const timePartsWords = timeRegexWords.exec(inLower);
+  if (timePartsWords) {
+    const [_, a, pastTo, hStr] = timePartsWords;
+    if (pastTo === 'past') {
+      parsed.hour = parseInt(hStr, 10);
+      if (numberRegex.test(a)) {
+        parsed.minute = parseInt(a, 10);
+      } else if (a === `quarter`) {
+        parsed.minute = 15;
+      } else if (a === `half`) {
+        parsed.minute = 30;
+      }
+    } else if (pastTo === 'to') {
+      parsed.hour = (parseInt(hStr, 10) - 1 + 12) % 12;
+      if (numberRegex.test(a)) {
+        parsed.minute = parseInt(a, 10);
+      } else if (a === `quarter`) {
+        parsed.minute = 45;
+      } else if (a === `half`) {
+        parsed.minute = 30;
+      }
+    }
   }
 
   return parsed;
