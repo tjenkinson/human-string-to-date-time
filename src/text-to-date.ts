@@ -134,9 +134,8 @@ export function parse(input: string): ParsedDate {
   const words = [...inLower.matchAll(wordRegex)].map(([match]) => match);
   const tokens = [...inLower.matchAll(tokenRegex)].map(([match]) => match);
 
-  // TODO scan and don't use hardcoded num
-  if (tokens[0]) {
-    const matches = dateRegex.exec(tokens[0]);
+  for (const token of tokens) {
+    const matches = dateRegex.exec(token);
     if (matches) {
       parsed.day = parseInt(matches[1], 10);
       parsed.month = parseInt(matches[3], 10);
@@ -146,28 +145,26 @@ export function parse(input: string): ParsedDate {
     }
   }
 
-  if (
-    words[0] &&
-    numberRegex.test(words[0]) &&
-    words[1] &&
-    months.has(words[1])
-  ) {
-    parsed.day = parseInt(words[0], 10);
-    if (words[2] && numberRegex.test(words[2])) {
-      parsed.year = parseInt(words[2].padStart(4, `20`), 10);
-    }
-  }
+  for (let i = 0; i < words.length - 1; i++) {
+    const first = words[i];
+    const second = words[i + 1];
+    const yearStr = words.length > i + 2 ? words[i + 2] : null;
 
-  // TODO similar to above
-  if (
-    words[0] &&
-    months.has(words[0]) &&
-    words[1] &&
-    numberRegex.test(words[1])
-  ) {
-    parsed.day = parseInt(words[1], 10);
-    if (words[2] && numberRegex.test(words[2])) {
-      parsed.year = parseInt(words[2].padStart(4, `20`), 10);
+    let dayStr: string | null = null;
+    let monthStr: string | null = null;
+    if (numberRegex.test(first) && months.has(second)) {
+      dayStr = first;
+      monthStr = second;
+    } else if (numberRegex.test(second) && months.has(first)) {
+      dayStr = second;
+      monthStr = first;
+    }
+
+    if (dayStr && monthStr) {
+      parsed.day = parseInt(dayStr, 10);
+      if (yearStr && numberRegex.test(yearStr)) {
+        parsed.year = parseInt(yearStr.padStart(4, `20`), 10);
+      }
     }
   }
 
