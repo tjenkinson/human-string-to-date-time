@@ -113,6 +113,9 @@ const timeRegex =
   /\b(\d{1,2}):(\d{1,2})(?::(\d{1,2})(?:\.(\d{1,3}))?)?(?: ?(am|pm))?\b/;
 const timeRegexHour = /(?:^|[^\w:])(\d{1,2}) ?(am|pm)\b/;
 const timeRegexWords = /\b(quarter|half|\d{1,2}) (past|to) (\d{1,2}|\w+)\b/;
+// 2023-02-11T12:10:58.061Z
+const isoTimeRegex =
+  /\b(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z\b/;
 
 export function parse(input: string): ParsedDate {
   const parsed: ParsedDate = {
@@ -229,6 +232,18 @@ export function parse(input: string): ParsedDate {
         }
       }
     }
+  }
+
+  const isoParts = isoTimeRegex.exec(input);
+  if (isoParts) {
+    const [_, yearStr, monthStr, dayStr, hStr, mStr, sStr, msStr] = isoParts;
+    parsed.year = parseInt(yearStr, 10);
+    parsed.month = parseInt(monthStr, 10);
+    parsed.day = parseInt(dayStr, 10);
+    parsed.hour = parseInt(hStr, 10);
+    parsed.minute = parseInt(mStr, 10);
+    parsed.second = parseInt(sStr, 10);
+    parsed.millisecond = parseInt(msStr, 10);
   }
 
   return parsed;

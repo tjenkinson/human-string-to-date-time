@@ -72,7 +72,18 @@ describe(`text-to-date`, () => {
           year: 1995,
         }),
       ],
-      // ['2023-02-11T12:10:58.061Z', fillNulls({})],
+      [
+        '2023-02-11T12:10:58.061Z',
+        fillNulls({
+          day: 11,
+          month: 2,
+          year: 2023,
+          hour: 12,
+          minute: 10,
+          second: 58,
+          millisecond: 61,
+        }),
+      ],
     ] as const
   ).map(([input, expected]) => {
     it(`works with "${input}"`, () => {
