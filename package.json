@@ -1,6 +1,6 @@
 {
   "name": "human-string-to-date-time",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A library that parses a human representation of a UK English formatted date/time into an object.",
   "main": "dist/human-string-to-date-time.js",
   "module": "dist/human-string-to-date-time.es.js",
