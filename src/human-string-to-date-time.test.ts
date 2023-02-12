@@ -24,7 +24,7 @@ function fill({
   };
 }
 
-describe('text-to-date', () => {
+describe('human-string-to-date-time', () => {
   (
     [
       ['', fill({})],
