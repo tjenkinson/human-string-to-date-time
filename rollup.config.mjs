@@ -10,7 +10,7 @@ export default {
   },
   output: [
     {
-      name: 'StateManager',
+      name: 'HumanStringToDateTime',
       file: 'dist/human-string-to-date-time.js',
       format: 'umd',
     },
