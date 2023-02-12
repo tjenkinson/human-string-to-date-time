@@ -114,6 +114,7 @@ describe('human-string-to-date-time', () => {
       ['Feb 40', fill({ month: 1 })],
       ['Feb 2023', fill({ month: 1, year: 2023 })],
       ['11th Feb 2023', fill({ day: 10, month: 1, year: 2023, dayOfWeek: 6 })],
+      ['11th Feb 103', fill({ day: 10, month: 1, year: 2103, dayOfWeek: 0 })],
       ['11th Feb 23', fill({ day: 10, month: 1, year: 2023, dayOfWeek: 6 })],
       ['11th Feb 2', fill({ day: 10, month: 1 })],
       ['11th Feb 3000', fill({ day: 10, month: 1, year: 3000, dayOfWeek: 2 })],

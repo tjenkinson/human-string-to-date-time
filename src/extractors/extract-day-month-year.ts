@@ -5,6 +5,7 @@ import { months } from '../maps/months';
 const tokenRegex = /[^ ]+/g;
 const wordRegex = /\w+/g;
 const numberRegex = /^\d+$/;
+const yearRegex = /^\d{2,4}$/;
 const dateRegex = /^([0-9]{1,2})([-/.])([0-9]{1,2})(?:\2([0-9]{2,4}))?$/;
 
 export function extractDayMonthYear(input: string): {
@@ -84,10 +85,7 @@ export function extractDayMonthYear(input: string): {
         day: monthDays.get(dayStr) ?? parseInt(dayStr, 10) - 1,
         month: months.get(monthStr)!,
         year:
-          yearStr &&
-          numberRegex.test(yearStr) &&
-          yearStr.length >= 2 &&
-          yearStr.length <= 4
+          yearStr && yearRegex.test(yearStr)
             ? parseInt(yearStr.padStart(4, '20'), 10)
             : null,
       };
