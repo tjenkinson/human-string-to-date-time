@@ -19,8 +19,12 @@ export function extractTime(input: string): {
     const [_, hStr, mStr, sStr, msStr, tod] = timeParts;
     const hourIn = parseInt(hStr, 10);
     let hour: number | null = null;
-    if (!tod || hourIn <= 12) {
-      hour = tod?.[0] === 'p' ? hourIn + 12 : hourIn;
+    if (!tod) {
+      hour = hourIn;
+    } else if (hourIn < 12) {
+      hour = tod[0] === 'p' ? hourIn + 12 : hourIn;
+    } else if (hourIn === 12) {
+      hour = tod[0] === 'p' ? 12 : 0;
     }
     const minute = parseInt(mStr, 10);
     const second = sStr ? parseInt(sStr, 10) : null;
